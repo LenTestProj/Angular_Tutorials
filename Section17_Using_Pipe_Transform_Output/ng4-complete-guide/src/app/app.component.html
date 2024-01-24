@@ -4,16 +4,21 @@
         <br>
         <button class="btn btn-primary" (click)="onAddServer()">Add Server</button>
         <hr>
+        <h2>App Status: {{appStatus|async}}</h2>
+        <input type="text" [(ngModel)]="filteredStatus">
+        <hr>
         <ul class="list-group">
             <li
             class="list-group-item"
-            *ngFor="let server of servers"
+            *ngFor="let server of servers|filter:filteredStatus:'status'|sort:'name'"
             [ngClass]="getStatusClasses(server)">
             <span
                 class="badge">
                 {{ server.status }}
             </span>
-            <strong>{{ server.name }}</strong> | {{ server.instanceType }} | {{ server.started }}
+            <strong>{{ server.name|shorten:15 }}</strong> | 
+            {{ server.instanceType | uppercase | reverse}} | 
+            {{ server.started }}
             </li>
         </ul>
     </div>
