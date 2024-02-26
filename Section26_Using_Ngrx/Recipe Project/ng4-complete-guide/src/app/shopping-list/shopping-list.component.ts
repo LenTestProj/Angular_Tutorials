@@ -1,7 +1,8 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Ingredient } from '../shared/ingredient.model';
-import { ShoppingListService } from './shopping-list.services';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
+
+import { Ingredient } from '../shared/ingredient.model';
+import { ShoppingListService } from './shopping-list.service';
 import { LoggingService } from '../logging.service';
 
 @Component({
@@ -9,25 +10,31 @@ import { LoggingService } from '../logging.service';
   templateUrl: './shopping-list.component.html',
   styleUrls: ['./shopping-list.component.css']
 })
-export class ShoppingListComponent implements OnInit,OnDestroy {
-    ingredients:Ingredient[]|undefined;
-    private igChangedSub:Subscription|undefined;
+export class ShoppingListComponent implements OnInit, OnDestroy {
+  ingredients: Ingredient[]=[new Ingredient('',0)];
+  private subscription: Subscription=new Subscription();
 
-    constructor(private slService:ShoppingListService,private loggingService:LoggingService) { }
+  constructor(
+    private slService: ShoppingListService,
+    private loggingService: LoggingService
+  ) {}
 
-    ngOnInit(): void {
-        this.ingredients=this.slService.getIngredients();
-        this.igChangedSub=this.slService.ingredientsChanged.subscribe((ingredients:Ingredient[])=>{
-            this.ingredients=ingredients;
-        })
-        this.loggingService.printlog("Hello from Shopping-list component ngOninit")
-    }
+  ngOnInit() {
+    this.ingredients = this.slService.getIngredients();
+    this.subscription = this.slService.ingredientsChanged.subscribe(
+      (ingredients: Ingredient[]) => {
+        this.ingredients = ingredients;
+      }
+    );
 
-    ngOnDestroy(): void {
-        this.igChangedSub?.unsubscribe()
-    }
+    this.loggingService.printLog('Hello from ShoppingListComponent ngOnInit!');
+  }
 
-    onEditItem(index:number){
-        this.slService.startedEditing.next(index);
-    }
+  onEditItem(index: number) {
+    this.slService.startedEditing.next(index);
+  }
+
+  ngOnDestroy() {
+    this.subscription.unsubscribe();
+  }
 }
