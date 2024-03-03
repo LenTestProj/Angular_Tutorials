@@ -1,4 +1,4 @@
-import { Action } from "@ngrx/store";
+import { Action, UPDATE } from "@ngrx/store";
 import { Ingredient } from "../../shared/ingredient.model";
 import * as ShoppingListActions from './shopping-list.actions';
 
@@ -19,8 +19,29 @@ export function shoppingListReducer(state = initialState, action: ShoppingListAc
         case ShoppingListActions.ADD_INGREDIENTS:
             return {
                 ...state,
-                ingredients:[...state.ingredients,(action as ShoppingListActions.AddIngredient).payload]
+                ingredients:[...state.ingredients,...(action as ShoppingListActions.AddIngredients).payload]
             }
+        case ShoppingListActions.UPDATE_INGREDIENT:
+            const updateAction=(action as ShoppingListActions.UpdateIngredients)
+            const ingredient=state.ingredients[updateAction.payload.index];
+            const updatedIngredient={
+                ...ingredient,
+                ...updateAction.payload.ingredient
+            }
+            const updateIngredients=[...state.ingredients];
+            updateIngredients[updateAction.payload.index]=updatedIngredient;
+        
+            return {
+                ...state,
+                ingredients:updateIngredients
+            }
+
+        case ShoppingListActions.DELETE_INGREDIENT:
+            const index=(action as ShoppingListActions.DeleteIngredients).payload;
+            return {
+                ...state,
+                ingredients:state.ingredients.filter((_,i)=>i!==index)
+            }    
         default:
             return state
 
