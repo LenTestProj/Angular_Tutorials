@@ -27,6 +27,7 @@ export class AuthComponent implements OnDestroy,OnInit {
   @ViewChild(PlaceholderDirective, { static: false }) alertHost?: PlaceholderDirective;
 
   private closeSub: Subscription=new Subscription();
+  private storeSub:Subscription=new Subscription();  
 
   constructor(
     private authService: AuthService,
@@ -36,7 +37,7 @@ export class AuthComponent implements OnDestroy,OnInit {
   ) {}
 
     ngOnInit(): void {
-        this.store.select('auth').subscribe(authState=>{
+        this.storeSub = this.store.select('auth').subscribe(authState=>{
             this.isLoading=authState.loading;
             this.error=authState.authError;
             if(this.error){
@@ -56,44 +57,26 @@ export class AuthComponent implements OnDestroy,OnInit {
         const email = form.value.email;
         const password = form.value.password;
 
-        let authObs: Observable<AuthResponseData>;
-
         this.isLoading = true;
 
         if (this.isLoginMode) {
             this.store.dispatch(new AuthActions.LoginStart({email:email,password:password}))
-            authObs = this.authService.login(email, password);
         } else {
-            authObs = this.authService.signup(email, password);
+            this.store.dispatch(new AuthActions.SignupStart({email:email,password:password}))
         }
-        this.store.select('auth').subscribe(authState=>{
-
-        })
-
-        authObs.subscribe(
-        resData => {
-            console.log(resData);
-            this.isLoading = false;
-            this.router.navigate(['/recipes']);
-        },
-        errorMessage => {
-            console.log(errorMessage);
-            this.error = errorMessage;
-            this.showErrorAlert(errorMessage);
-            this.isLoading = false;
-        }
-        );
-
         form.reset();
     }
 
     onHandleError() {
-        this.error = null;
+        this.store.dispatch(new AuthActions.ClearError());
     }
 
     ngOnDestroy() {
         if (this.closeSub) {
         this.closeSub.unsubscribe();
+        }
+        if(this.storeSub){
+            this.storeSub.unsubscribe()
         }
     }
 
