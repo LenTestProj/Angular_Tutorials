@@ -21,6 +21,7 @@ export function authReducer(state:State=initialState,action:AuthActions.AuthActi
             const user=new User(loginAction.payload.email,loginAction.payload.userId,loginAction.payload.token,loginAction.payload.expirationDate);
             return {
                 ...state,
+                loading:false,
                 user:user,
                 authError:null
             }
@@ -52,7 +53,8 @@ export function authReducer(state:State=initialState,action:AuthActions.AuthActi
         case AuthActions.CLEAR_ERROR:
             return {
                 ...state,
-                authError:null
+                authError:null,
+                loading:false
             }   
         default:
             return state
