@@ -33,17 +33,20 @@ export class RecipeEffects {
     })
 
     storeRecipes=createEffect(()=>{
+        
         return this.action$.pipe(
             ofType(RecipeActions.STORE_RECIPES),
-            withLatestFrom(this.store.select('recipes'),
-            switchMap(data=>{
+            withLatestFrom(this.store.select('recipes')), //withLatestFrom merges one observable to another
+            switchMap(([actionData,recipesState])=>{
+                console.log("hello store recipes")
                 return this.http
                 .put(
                   'https://ng-course-recipe-book-6f4c2-default-rtdb.firebaseio.com/recipes.json',
-                  data.recipeState.recipes
+                  recipesState.recipes
                 ) 
             })
         )
-    })
+    },{dispatch:false})
+
     constructor(private action$:Actions, private http:HttpClient, private store:Store<fromApp.AppState>){};
 }
