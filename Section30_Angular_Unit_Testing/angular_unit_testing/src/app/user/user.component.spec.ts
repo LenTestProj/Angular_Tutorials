@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, async, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, async, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 
 import { UserComponent } from './user.component';
 import { UserService } from './user.service';
@@ -52,16 +52,24 @@ describe('UserComponent', () => {
         expect(app.data).toBe('')
     })
 
-    it('should fetch data successfully if not called asynchronously',waitForAsync(()=>{
+    it('should fetch data successfully if called asynchronously',waitForAsync(()=>{
         let fixture=TestBed.createComponent(UserComponent);
         let app=fixture.debugElement.componentInstance; 
         let dataService=fixture.debugElement.injector.get(DataService); 
         let spy=spyOn(dataService,'getDetails').and.returnValue(Promise.resolve('data'));  //spyon listens for events on the data service method getDetails adn retruns a mock value
         fixture.detectChanges();
         fixture.whenStable().then(()=>{
-          expect(app.data).toBe(undefined)  
-        });//reacts when all asynchronous tasks are finished
-        console.log(app.data);
-        expect(app.data).toBe('')
+          expect(app.data).toBe('data')  
+        });
+    }))
+
+    it('should fetch data successfully if called asynchronously',fakeAsync(()=>{
+        let fixture=TestBed.createComponent(UserComponent);
+        let app=fixture.debugElement.componentInstance; 
+        let dataService=fixture.debugElement.injector.get(DataService); 
+        let spy=spyOn(dataService,'getDetails').and.returnValue(Promise.resolve('data'));  //spyon listens for events on the data service method getDetails adn retruns a mock value
+        fixture.detectChanges();
+        tick();
+        expect(app.data).toBe('data') 
     }))
 });
